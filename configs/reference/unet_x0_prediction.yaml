@@ -1,0 +1,57 @@
+# X0-Prediction Reference Configuration
+# Direct clean image prediction instead of noise
+# ~1.7M parameters for fair comparison
+# Alternative parameterization - more intuitive but can be less stable
+
+exp_name: "reference_unet_x0"
+exp_dir: "./experiments/reference_unet_x0"
+use_wandb: false
+device: "cuda"
+use_torch_compile: true
+
+# Model configuration (~1.7M params)
+model:
+  architecture: "unet"
+  in_channels: 1
+  out_channels: 1
+  base_channels: 128    # Same as unified configs
+  embed_dim: 512
+  use_latents: false
+  use_conditioning: true
+
+# Data configuration
+data:
+  mnist_root: "./data/mnist"
+  image_size: 32
+  num_workers: 4
+
+# Training configuration
+training:
+  target: "x0"          # Direct prediction of clean image
+  epochs: 100
+  batch_size: 576       # Optimized for RTX 4060 GPU
+  lr: 0.000075         # Scaled with batch size, still conservative
+  beta1: 0.9
+  beta2: 0.999
+  weight_decay: 0.01
+  grad_clip: 1.0       # Important for x0 stability
+  use_scheduler: true
+  cfg_dropout_prob: 0.1
+
+# Sampling configuration
+sampling:
+  steps: 75             # X0 prediction can use moderate steps
+  sample_freq: 5
+  num_samples: 64
+  cfg_scale: 3.0        # Lower CFG works better with x0
+
+# Logging configuration
+logging:
+  log_freq: 100
+  checkpoint_freq: 10
+
+# Educational Note:
+# X0 prediction directly estimates the clean image at each step.
+# Pros: More interpretable, can be faster convergence on simple data
+# Cons: Can be less stable, especially at high noise levels
+# This parameterization helps understand the denoising process.

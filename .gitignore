@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+*.egg-info/
+.pytest_cache/
+.coverage
+*.log
+
+# Model outputs
+outputs/
+checkpoints/
+samples/
+*.pt
+*.pth
+*.safetensors
+
+# Data
+data/
+datasets/
+*.npz
+*.npy
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Temporary
+tmp/
+temp/
+*.tmp
+keep_wsl_alive.sh
+train_nosleep.py
+
+# Environment
+.env
+.env.local

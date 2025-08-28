@@ -1,0 +1,57 @@
+# DiT (Diffusion Transformer) Reference Configuration
+# Pure transformer architecture - No U-Net!
+# ~1.7M parameters for fair comparison
+# Influential in: Sora, Imagen Video, and the path to MMDiT
+
+exp_name: "reference_dit_transformer"
+exp_dir: "./experiments/reference_dit_transformer"
+use_wandb: false
+device: "cuda"
+use_torch_compile: true
+
+# Model configuration (~1.7M params)
+model:
+  architecture: "dit"
+  in_channels: 1
+  out_channels: 1
+  embed_dim: 256        # Transformer hidden dimension
+  depth: 12             # 12 transformer blocks for depth
+  patch_size: 2         # 32x32 -> 16x16 patches
+  use_latents: false
+  use_conditioning: true
+
+# Data configuration
+data:
+  mnist_root: "./data/mnist"
+  image_size: 32
+  num_workers: 4
+
+# Training configuration
+training:
+  target: "eps"         # Epsilon prediction (original DiT)
+  epochs: 100           # Transformers often need more epochs
+  batch_size: 256       # Optimized for RTX 4060 GPU
+  lr: 0.00014          # Scaled with batch size
+  beta1: 0.9
+  beta2: 0.999
+  weight_decay: 0.01
+  grad_clip: 1.0
+  use_scheduler: true
+  cfg_dropout_prob: 0.1 # CFG support
+
+# Sampling configuration
+sampling:
+  steps: 100           # Transformers benefit from more steps
+  sample_freq: 5
+  num_samples: 64
+  cfg_scale: 4.0        # Moderate CFG for MNIST
+
+# Logging configuration
+logging:
+  log_freq: 100
+  checkpoint_freq: 10
+
+# Historical Note:
+# DiT showed that transformers could replace U-Nets entirely,
+# leading to better scaling properties and eventually MMDiT.
+# Key insight: Treating diffusion as a sequence modeling problem.

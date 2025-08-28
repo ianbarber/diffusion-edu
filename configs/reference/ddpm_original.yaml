@@ -1,0 +1,57 @@
+# Original DDPM Configuration
+# The paper that started it all (Ho et al., 2020)
+# ~1.7M parameters for fair comparison
+# Historical baseline - no CFG, simple epsilon prediction
+
+exp_name: "reference_ddpm_original"
+exp_dir: "./experiments/reference_ddpm_original"
+use_wandb: false
+device: "cuda"
+use_torch_compile: true
+
+# Model configuration (~1.7M params)
+model:
+  architecture: "unet"
+  in_channels: 1
+  out_channels: 1
+  base_channels: 128
+  embed_dim: 512
+  use_latents: false
+  use_conditioning: false  # Original DDPM was unconditional
+
+# Data configuration
+data:
+  mnist_root: "./data/mnist"
+  image_size: 32
+  num_workers: 4
+
+# Training configuration
+training:
+  target: "eps"         # Original epsilon prediction
+  epochs: 100
+  batch_size: 576       # Optimized for RTX 4060 GPU
+  lr: 0.0003           # Scaled with batch size
+  beta1: 0.9
+  beta2: 0.999
+  weight_decay: 0.0     # No weight decay in original
+  grad_clip: 1.0
+  use_scheduler: false  # Original used fixed LR
+  cfg_dropout_prob: 0.0 # No CFG in original DDPM
+
+# Sampling configuration
+sampling:
+  steps: 200           # We'll use 200 for quality (original was 1000!)
+  sample_freq: 5
+  num_samples: 64
+  cfg_scale: 1.0       # No guidance (unconditional)
+
+# Logging configuration
+logging:
+  log_freq: 100
+  checkpoint_freq: 10
+
+# Historical Note:
+# This is where modern diffusion models began. The original DDPM
+# paper used 1000 denoising steps and took ~20 hours to train on
+# CelebA 64x64. Today's models are 100-1000x more efficient.
+# Key innovation: Showing that diffusion models could match GANs.

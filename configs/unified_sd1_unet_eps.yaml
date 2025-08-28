@@ -1,0 +1,50 @@
+# Unified SD1-style Configuration: UNet with Epsilon Prediction
+# ~1.7M parameters with CFG support
+# Represents the Stable Diffusion 1.x approach
+
+exp_name: "unified_sd1_unet_eps"
+exp_dir: "./experiments/unified_sd1_unet_eps"
+use_wandb: false
+device: "cuda"
+use_torch_compile: true
+
+# Model configuration (~1.7M params)
+model:
+  architecture: "unet"
+  in_channels: 1
+  out_channels: 1
+  base_channels: 128    # Increased for more capacity
+  embed_dim: 512        # Standard embedding dimension
+  use_latents: false
+  use_conditioning: true
+
+# Data configuration
+data:
+  mnist_root: "./data/mnist"
+  image_size: 32
+  num_workers: 4
+
+# Training configuration with CFG
+training:
+  target: "eps"         # Epsilon prediction (SD1 style)
+  epochs: 100           # More epochs for better quality
+  batch_size: 576       # Optimized for RTX 4060 GPU
+  lr: 0.00015          # Scaled with batch size (sqrt scaling)
+  beta1: 0.9
+  beta2: 0.999
+  weight_decay: 0.01    # Light weight decay
+  grad_clip: 1.0
+  use_scheduler: true
+  cfg_dropout_prob: 0.1 # 10% CFG dropout for training
+
+# Sampling configuration
+sampling:
+  steps: 100            # More steps for cleaner MNIST
+  sample_freq: 5
+  num_samples: 64
+  cfg_scale: 5.0        # Lower CFG better for MNIST digits
+
+# Logging configuration
+logging:
+  log_freq: 100
+  checkpoint_freq: 10

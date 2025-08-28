@@ -1,0 +1,60 @@
+# Latent Diffusion Model (LDM) Reference Configuration  
+# Working in compressed VAE latent space
+# Foundation of Stable Diffusion's efficiency
+# Note: Requires VAE - simplified version for education
+
+exp_name: "reference_ldm_latent"
+exp_dir: "./experiments/reference_ldm_latent"
+use_wandb: false
+device: "cuda"
+use_torch_compile: true
+
+# Model configuration
+model:
+  architecture: "unet"
+  in_channels: 4        # 4-channel latents (typical)
+  out_channels: 4
+  base_channels: 128
+  embed_dim: 512
+  use_latents: true     # Key difference: VAE latent space
+  use_conditioning: true
+
+# Data configuration
+data:
+  mnist_root: "./data/mnist"
+  image_size: 32        # Images are 32x32
+  latent_size: 8        # But latents are 8x8 (4x compression)
+  num_workers: 4
+  precompute_latents: false
+
+# Training configuration
+training:
+  target: "eps"
+  epochs: 100
+  batch_size: 768       # Even larger in latent space for RTX 4060
+  lr: 0.00012          # Scaled with batch size
+  beta1: 0.9
+  beta2: 0.999
+  weight_decay: 0.01
+  grad_clip: 1.0
+  use_scheduler: true
+  cfg_dropout_prob: 0.1
+
+# Sampling configuration
+sampling:
+  steps: 50
+  sample_freq: 5
+  num_samples: 64
+  cfg_scale: 7.5
+
+# Logging configuration
+logging:
+  log_freq: 100
+  checkpoint_freq: 10
+
+# Historical Note:
+# LDM/Stable Diffusion's key insight: Diffusion in compressed space.
+# By working in 8x8 latents instead of 32x32 pixels (or 512x512!),
+# we get 16x fewer pixels to denoise, making training and inference
+# much more efficient. This enabled Stable Diffusion to run on
+# consumer GPUs, democratizing AI image generation.

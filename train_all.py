@@ -41,11 +41,9 @@ def run_command(cmd, description="", capture_output=False):
             print(f"Error: {e.stderr}")
         return False
 
-def train_model(config_path, description="", epochs_override=None):
+def train_model(config_path, description=""):
     """Train a single model with the given config."""
     cmd = f"python train.py --config {config_path}"
-    if epochs_override:
-        cmd += f" --epochs {epochs_override}"
     
     config_name = Path(config_path).stem
     desc = description or f"Training {config_name}"
@@ -90,9 +88,7 @@ def train_all_models(mode='all', quick=False):
     
     reference_configs = [
         ('configs/reference/ddpm_original.yaml', 'Original DDPM (2020)'),
-        ('configs/reference/dit_transformer.yaml', 'DiT: Pure Transformer'),
         ('configs/reference/unet_x0_prediction.yaml', 'X0 Direct Prediction'),
-        ('configs/reference/ldm_latent.yaml', 'Latent Diffusion (VAE space)'),
     ]
     
     # Select configs based on mode
@@ -102,8 +98,7 @@ def train_all_models(mode='all', quick=False):
     if mode in ['all', 'reference']:
         configs_to_train.extend(reference_configs)
     
-    # Quick mode: fewer epochs for testing
-    epochs = 10 if quick else None
+    # Quick mode note: epochs controlled by config files
     
     # Training summary
     results = {}
@@ -111,7 +106,7 @@ def train_all_models(mode='all', quick=False):
     
     print(f"\n📋 Training Plan:")
     print(f"  - Mode: {mode}")
-    print(f"  - Quick: {quick} (epochs: {epochs or 'config default'})")
+    print(f"  - Quick: {quick} (epochs controlled by config)")
     print(f"  - Models to train: {len(configs_to_train)}")
     
     for config, desc in configs_to_train:
@@ -123,7 +118,7 @@ def train_all_models(mode='all', quick=False):
     for i, (config_path, description) in enumerate(configs_to_train, 1):
         print(f"\n📊 Training {i}/{len(configs_to_train)}: {description}")
         
-        success, elapsed = train_model(config_path, description, epochs)
+        success, elapsed = train_model(config_path, description)
         
         config_name = Path(config_path).stem
         results[config_name] = {
